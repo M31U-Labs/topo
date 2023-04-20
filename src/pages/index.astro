@@ -2,14 +2,59 @@
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Topo</title>
+  </head>
+  <body>
+    <div class="flex flex-col justify-center items-center bg-zinc-950 h-screen text-zinc-100">
+      <label for="long">Longitude</label>
+      <input class="text-zinc-900" type="number" id="long" name="long" />
+      <label for="lat">Latitude</label>
+      <input class="text-zinc-900" type="number" id="lat" name="lat" />
+      <button id="generate" class="bg-emerald-400 p-4 m-2 rounded">Generate Map</button>
+
+      <img class="bg-zinc-200"width="600px" height="600px" id="map" />
+    </div>
+  </body>
 </html>
+<script>
+  function isInput(e: Element | null): e is HTMLInputElement {
+    return e instanceof HTMLInputElement;
+  }
+
+  const generate = document.getElementById("generate");
+  const minLat = document.getElementById("lat");
+  const minLong = document.getElementById("long");
+ 
+
+  if (generate) {
+    generate.addEventListener("click", () => {
+      if (
+        isInput(minLat) &&
+        isInput(minLong)
+      ) {
+        const params = new URLSearchParams();
+
+		
+
+        params.set("minLat", minLat.value);
+        params.set("minLong", minLong.value);
+        params.set("maxLat", (minLat.valueAsNumber + 1).toString());
+        params.set("maxLong", (minLong.valueAsNumber + 1).toString());
+
+        fetch("/getMap?" + params.toString())
+          .then((res) => res.text())
+          .then((svg) => {
+            const map = document.getElementById("map");
+            if (map instanceof HTMLImageElement) {
+              map.src = `data:image/svg+xml;base64,${btoa(svg)}`;
+            }
+          });
+      }
+    });
+  }
+</script>
